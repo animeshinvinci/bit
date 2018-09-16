@@ -1,5 +1,5 @@
+import boot.Boot
 import javax.inject._
-
 import com.google.inject.AbstractModule
 import net.codingwell.scalaguice.ScalaModule
 import play.api.{Configuration, Environment}
@@ -15,6 +15,7 @@ class Module(environment: Environment, configuration: Configuration)
     with ScalaModule {
 
   override def configure() = {
+    bind[Boot].asEagerSingleton()
     bind[PostRepository].to[PostRepositoryImpl].in[Singleton]
   }
 }
