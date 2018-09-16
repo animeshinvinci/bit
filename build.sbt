@@ -1,4 +1,5 @@
 import sbt.Keys._
+import Dependencies._
 
 lazy val GatlingTest = config("gatling") extend Test
 
@@ -22,6 +23,7 @@ libraryDependencies += "org.scalatestplus.play" %% "scalatestplus-play" % "3.1.2
 libraryDependencies += "io.gatling.highcharts" % "gatling-charts-highcharts" % gatlingVersion(scalaBinaryVersion.value) % Test
 libraryDependencies += "io.gatling" % "gatling-test-framework" % gatlingVersion(scalaBinaryVersion.value) % Test
 
+
 // The Play project itself
 lazy val root = (project in file("."))
   .enablePlugins(Common, PlayScala, GatlingPlugin)
@@ -29,7 +31,11 @@ lazy val root = (project in file("."))
   .settings(inConfig(GatlingTest)(Defaults.testSettings): _*)
   .settings(
     name := """play-scala-rest-api-example""",
-    scalaSource in GatlingTest := baseDirectory.value / "/gatling/simulation"
+    scalaSource in GatlingTest := baseDirectory.value / "/gatling/simulation",
+    libraryDependencies ++= Seq(
+      "io.github.wherby"%%"gig"%"0.2.2-SNAPSHOT",
+      "com.typesafe.akka" %% "akka-actor" % versions.akka,
+    )
   )
 
 // Documentation for this project:
