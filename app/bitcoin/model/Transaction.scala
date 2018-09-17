@@ -8,11 +8,11 @@ package bitcoin.model
 
 object Transaction extends SnakifiedSprayJsonSupport {
 
-  case class PrevOut(spent: Boolean, txIndex: Long, addr: String, value: Long, n: Int, script: String)
+  case class PrevOut(spent: Boolean, txIndex: Long, addr: Option[String], value: Long, n: Int, script: String)
 
   case class Input(sequence: Long, witness: String, prevOut: Option[PrevOut], script: String)
 
-  case class Out(spent: Boolean, txIndex: Long, addr: String, value: Long, n: Int, script: String)
+  case class Out(spent: Boolean, txIndex: Long, addr: Option[String], value: Long, n: Int, script: String)
 
   case class Trans(ver: Int, inputs: Seq[Input], weight: Int, blockHeight: Option[Int], relayedBy: String, out: Seq[Out],
                    lockTime: Int, size: Int, doubleSpend:Option[Boolean], time: Long, txIndex: Long, vinSz: Int,

@@ -1,6 +1,6 @@
 GET        /                       controllers.HomeController.index
 
-GET        /bit                     bitcoin.controllers.BitController.get
+GET        /bit/*address          bitcoin.controllers.BitController.get(address:String)
 
 ->         /v1/posts               v1.post.PostRouter
 

@@ -1,39 +1,45 @@
 package bitcoin.controllers
 
 import akka.actor.{ActorSystem, Props}
+import bitcoin.model.AddressTrans.AddressTransResult
 import cakesolutions.kafka.akka.KafkaConsumerActor.Subscribe
 import cakesolutions.kafka.{KafkaProducerRecord, KafkaTopicPartition}
 import gig.consumer.Consumer
 import gig.producer.GigProducer
 import javax.inject.Inject
 import play.api.Logger
+import play.api.libs.ws.WSClient
 import play.api.mvc.{AbstractController, ControllerComponents}
-import test.gig.downstreamactor.DownStreamTestActor
-import test.gig.gigConsumer.TestConsumer3.{randomString, randomTopicPartition}
-
-import scala.util.Random
-
+import spray.json._
+import scala.concurrent.ExecutionContext.Implicits.global
 /**
   * For bitcoin.controllers in gen
   * Created by whereby[Tao Zhou](187225577@qq.com) on 2018/9/16
   */
-class BitController  @Inject()(cc: ControllerComponents, system:ActorSystem) extends AbstractController(cc) {
-  private def randomString: String = Random.alphanumeric.take(5).mkString("")
-  private def randomTopicPartition = KafkaTopicPartition(randomString, 0)
-  implicit val system2:ActorSystem = system
+class BitController  @Inject()(cc: ControllerComponents, ws: WSClient) extends AbstractController(cc) {
 
-  def get = Action { implicit request =>
-    val producer = GigProducer.createProducer()
+  val producer = GigProducer.createProducer()
+  def get(address:String) = Action.async { implicit request =>
+
     Logger.debug("Gig producer started:")
-    val topicPartition = randomTopicPartition
-    Logger.info(s"Sending data to topic: $topicPartition")
-    producer.send(KafkaProducerRecord(topicPartition.topic(), None, "valueCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC"))
-    producer.flush()
-    val downStreamTestActor = system.actorOf(Props[DownStreamTestActor],"downstreamActor")
-    val consumer= Consumer.createConsumer(downStreamTestActor)
-    val subscription = Subscribe.AutoPartition(List(topicPartition.topic()))
-    consumer.subscribe(subscription)
-    Thread.sleep(1999)
-    Ok("Success")
+    val topicPartition = KafkaTopicPartition("bitcoin", 0)
+    ws.url(s" https://blockchain.info/rawaddr/$address").get().map{
+      response=>val addressTrans= try{
+        Some(response.body.parseJson.convertTo[AddressTransResult])
+      }catch {
+        case ex =>
+          Logger.error(ex.getMessage)
+          None
+      }
+      addressTrans match {
+        case Some(trans:AddressTransResult)=> trans.txs.map{
+          tran=>producer.send(KafkaProducerRecord(topicPartition.topic(), None, tran.toString))
+        }
+          producer.flush()
+          Ok("Success")
+        case None =>
+          Ok("Wrong address")
+      }
+    }
   }
 }

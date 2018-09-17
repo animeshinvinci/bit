@@ -1,4 +1,3 @@
-import sbt.Keys._
 import Dependencies._
 
 lazy val GatlingTest = config("gatling") extend Test
@@ -7,6 +6,11 @@ scalaVersion in ThisBuild := "2.12.6"
 
 crossScalaVersions := Seq("2.11.12", "2.12.6")
 
+
+lazy val appResolvers = Seq(
+  "typesafe" at "http://repo.typesafe.com/typesafe/releases/",
+  "gensonatype" at "https://oss.sonatype.org/content/groups/staging/"
+)
 def gatlingVersion(scalaBinVer: String): String = scalaBinVer match {
   case "2.11" => "2.2.5"
   case "2.12" => "2.3.1"
@@ -32,7 +36,9 @@ lazy val root = (project in file("."))
   .settings(
     name := """gen""",
     scalaSource in GatlingTest := baseDirectory.value / "/gatling/simulation",
+    resolvers ++= appResolvers,
     libraryDependencies ++= Seq(
+      ws,
       "io.github.wherby"%%"gig"%"0.2.2-SNAPSHOT",
       "com.typesafe.akka" %% "akka-actor" % versions.akka,
     )
