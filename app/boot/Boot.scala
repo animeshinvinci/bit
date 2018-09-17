@@ -27,7 +27,7 @@ class Boot  @Inject( ) (lifecycle: ApplicationLifecycle,system:ActorSystem)  {
   Logger.info("Application started..")
   implicit val system2 :ActorSystem  =system
   val downStreamTestActor = system.actorOf(Props[DownStreamTestActor],"downstreamActor")
-  val consumer= Consumer.createConsumer(downStreamTestActor)
+  val consumer= Consumer.createConsumerActor(downStreamTestActor,Map("max.poll.records"->Int.box(500)))
   val topicPartition  =KafkaTopicPartition("bitcoin", 0)
   val subscription = Subscribe.AutoPartition(List(topicPartition.topic()))
   consumer.subscribe(subscription)
