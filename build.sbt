@@ -39,6 +39,7 @@ lazy val root = (project in file("."))
     resolvers ++= appResolvers,
     libraryDependencies ++= Seq(
       ws,
+      ehcache,
       "io.github.wherby"%%"gig"%"0.2.2-SNAPSHOT",
       "com.typesafe.akka" %% "akka-actor" % versions.akka,
     )

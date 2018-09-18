@@ -5,6 +5,7 @@ import akka.actor.{ActorSystem, Props}
 import bitcoin.actors.TrackMSG.Start
 import bitcoin.actors.TranTrackActor
 import bitcoin.model.AddressTrans.AddressTransResult
+import bitcoin.services.WsService
 import cakesolutions.kafka.{KafkaProducerRecord, KafkaTopicPartition}
 import gig.producer.GigProducer
 import javax.inject.Inject
@@ -24,7 +25,7 @@ object BitController{
   * For bitcoin.controllers in gen
   * Created by whereby[Tao Zhou](187225577@qq.com) on 2018/9/16
   */
-class BitController  @Inject()(cc: ControllerComponents, ws: WSClient, system:ActorSystem) extends AbstractController(cc) {
+class BitController  @Inject()(cc: ControllerComponents, ws: WSClient, system:ActorSystem,wss:WsService) extends AbstractController(cc) {
 
   val producer = GigProducer.createProducer()
   def get(address:String) = Action.async { implicit request =>
