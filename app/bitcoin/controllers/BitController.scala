@@ -45,6 +45,10 @@ class BitController  @Inject()(cc: ControllerComponents, ws: WSClient, system:Ac
         }
           val trackActor = system.actorOf(BitController.props(ws))
           trackActor ! Start(trans.txs(0))
+//          trans.txs.map{
+//            tx=> trackActor ! Start(tx)
+//          }
+
           producer.flush()
           Ok("Success")
         case None =>

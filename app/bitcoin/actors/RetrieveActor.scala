@@ -3,15 +3,14 @@ package bitcoin.actors
 import akka.actor.{Actor, ActorLogging, ActorRef}
 import bitcoin.actors.TrackMSG.{PreviousRecord, Record, Start}
 import bitcoin.model.AddressTrans.AddressTransResult
-import javax.inject.Inject
 import play.api.Logger
-import play.api.libs.concurrent.InjectedActorSupport
+
 import play.api.libs.ws.WSClient
 import spray.json._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class RetrieveActor(ws: WSClient) extends Actor with ActorLogging with InjectedActorSupport{
+class RetrieveActor(ws: WSClient) extends Actor with ActorLogging {
 
   def getTranPreviousOut(address: String, trIndex :Long, recorder: ActorRef)={
     log.info(s"Start Get Address:$address")
@@ -26,7 +25,6 @@ class RetrieveActor(ws: WSClient) extends Actor with ActorLogging with InjectedA
           Logger.error(ex.getMessage)
           None
       }
-        log.info(s"Result: $addressTrans")
         addressTrans match {
           case Some(trans:AddressTransResult)=> trans.txs.filter(tx=> tx.txIndex == trIndex).map{
             tx=>recorder ! Record(tx)
