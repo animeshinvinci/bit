@@ -1,4 +1,4 @@
-import bitcoin.services.{CacheService, MemCacheService, WsService}
+import bitcoin.services.{CacheService, FileCacheService, MemCacheService, WsService}
 import boot.Boot
 import javax.inject._
 import com.google.inject.AbstractModule
@@ -18,7 +18,7 @@ class Module(environment: Environment, configuration: Configuration)
   override def configure() = {
     bind[Boot].asEagerSingleton()
     bind[PostRepository].to[PostRepositoryImpl].in[Singleton]
-    bind[CacheService].to[MemCacheService].in[Singleton]
+    bind[CacheService].to[FileCacheService].in[Singleton]
     bind[WsService].asEagerSingleton()
   }
 }
