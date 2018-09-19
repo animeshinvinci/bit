@@ -1,6 +1,5 @@
 package bitcoin.controllers
 
-
 import akka.actor.{ActorSystem, Props}
 import bitcoin.actors.TrackMSG.Start
 import bitcoin.actors.TranTrackActor
@@ -12,13 +11,11 @@ import javax.inject.Inject
 import play.api.Logger
 import play.api.libs.ws.WSClient
 import play.api.mvc.{AbstractController, ControllerComponents}
-import spray.json._
-
 import scala.concurrent.ExecutionContext.Implicits.global
 
 object BitController{
-  def props(ws:WSClient):Props={
-    Props(new TranTrackActor(ws))
+  def props(wss:WsService):Props={
+    Props(new TranTrackActor(wss))
   }
 }
 /**
@@ -32,24 +29,17 @@ class BitController  @Inject()(cc: ControllerComponents, ws: WSClient, system:Ac
 
     Logger.debug("Gig producer started:")
     val topicPartition = KafkaTopicPartition("bitcoin", 0)
-    ws.url(s" https://blockchain.info/rawaddr/$address").get().map{
-      response=>val addressTrans= try{
-        Some(response.body.parseJson.convertTo[AddressTransResult])
-      }catch {
-        case ex:Exception =>
-          Logger.error(ex.getMessage)
-          None
-      }
-      addressTrans match {
+    wss.getAddress(address)map{
+      addressTrans=>addressTrans match {
         case Some(trans:AddressTransResult)=> trans.txs.map{
           tran=>producer.send(KafkaProducerRecord(topicPartition.topic(), None, tran.toString))
         }
-          val trackActor = system.actorOf(BitController.props(ws))
-          trackActor ! Start(trans.txs(10))
+          val trackActor = system.actorOf(BitController.props(wss))
+          trackActor ! Start(trans.txs(0))
           //trackActor ! Start(trans.txs(10))
-//          trans.txs.map{
-//            tx=> trackActor ! Start(tx)
-//          }
+          //          trans.txs.map{
+          //            tx=> trackActor ! Start(tx)
+          //          }
 
           producer.flush()
           Ok("Success")

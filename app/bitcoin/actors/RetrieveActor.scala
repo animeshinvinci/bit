@@ -1,38 +1,26 @@
 package bitcoin.actors
 
 import akka.actor.{Actor, ActorLogging, ActorRef}
-import bitcoin.actors.TrackMSG.{PreviousRecord, Record, Start, TrackInfo}
+import bitcoin.actors.TrackMSG.{PreviousRecord, Record, TrackInfo}
 import bitcoin.model.AddressTrans.AddressTransResult
-import play.api.Logger
-import play.api.libs.ws.WSClient
-import spray.json._
-
+import bitcoin.services.WsService
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class RetrieveActor(ws: WSClient) extends Actor with ActorLogging {
+class RetrieveActor(wss: WsService) extends Actor with ActorLogging {
   def getTranPreviousOut(address: String, trIndex: Long, recorder: ActorRef, trackInfo: TrackInfo) = {
     log.info(s"Start Get Address:$address")
-    ws.url(s" https://blockchain.info/rawaddr/$address").get().map {
-      response =>
-        log.info(s"End get address : $address")
-        val addressTrans = try {
-          Some(response.body.parseJson.convertTo[AddressTransResult])
-        } catch {
-          case ex: Exception =>
-            Logger.error(ex.getMessage)
-            log.error(s"The error string for Json is ${response.body}")
-            None
-        }
+    wss.getAddress(address) map {
+      addressTrans =>
         addressTrans match {
           case Some(trans: AddressTransResult) => trans.txs.filter(tx => tx.txIndex == trIndex).map {
             tx =>
-              recorder ! Record(tx,trackInfo)
+              recorder ! Record(tx, trackInfo)
               tx.inputs.map {
                 inTrx =>
                   inTrx.prevOut map {
                     preOut =>
                       preOut.addr match {
-                        case Some(address: String) => self ! PreviousRecord(address, preOut.txIndex, recorder, TrackInfo(trackInfo.originAddress,trackInfo.tranNum+1))
+                        case Some(address: String) => self ! PreviousRecord(address, preOut.txIndex, recorder, TrackInfo(trackInfo.originAddress, trackInfo.tranNum + 1))
                           log.info(s"RETRIEVE BEFORE : $preOut")
                         case None => log.info(s"No preOut need for : $preOut")
                       }
@@ -44,8 +32,8 @@ class RetrieveActor(ws: WSClient) extends Actor with ActorLogging {
   }
 
   def receive = {
-    case PreviousRecord(address: String, trIndex: Long, recorder: ActorRef,trackInfo) =>
-      getTranPreviousOut(address, trIndex, recorder,trackInfo)
+    case PreviousRecord(address: String, trIndex: Long, recorder: ActorRef, trackInfo) =>
+      getTranPreviousOut(address, trIndex, recorder, trackInfo)
     case msg =>
       log.debug(msg.toString)
   }

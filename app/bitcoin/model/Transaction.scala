@@ -5,7 +5,6 @@ package bitcoin.model
   * Created by whereby[Tao Zhou](187225577@qq.com) on 2018/9/16
   */
 
-
 object Transaction extends SnakifiedSprayJsonSupport {
 
   case class PrevOut(spent: Boolean, txIndex: Long, addr: Option[String], value: Long, n: Int, script: String)

@@ -3,21 +3,21 @@ package bitcoin.actors
 import akka.actor.{Actor, ActorLogging, Props}
 import bitcoin.actors.TrackMSG.{PreviousRecord, Record, Start, TrackInfo}
 import bitcoin.model.Transaction.Trans
-import play.api.libs.ws.WSClient
+import bitcoin.services.WsService
 
 /**
   * For bitcoin.actors.msg in play-scala-rest-api-example
   * Created by whereby[Tao Zhou](187225577@qq.com) on 2018/9/16
   */
 object TranTrackActor {
-  def props(ws: WSClient): Props = {
-    Props(new RetrieveActor(ws))
+  def props(wss:WsService): Props = {
+    Props(new RetrieveActor(wss))
   }
 }
 
-class TranTrackActor(ws: WSClient) extends Actor with ActorLogging {
+class TranTrackActor(wss:WsService) extends Actor with ActorLogging {
   def startTraceTran(tran: Trans) = {
-    val retrieveActor = context.actorOf(TranTrackActor.props(ws))
+    val retrieveActor = context.actorOf(TranTrackActor.props(wss))
     val recordActor = context.actorOf(Props[RecordActor])
     recordActor ! Record(tran, TrackInfo(tran.txIndex.toString,0))
     tran.inputs map {
