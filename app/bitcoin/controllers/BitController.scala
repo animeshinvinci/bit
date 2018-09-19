@@ -45,7 +45,8 @@ class BitController  @Inject()(cc: ControllerComponents, ws: WSClient, system:Ac
           tran=>producer.send(KafkaProducerRecord(topicPartition.topic(), None, tran.toString))
         }
           val trackActor = system.actorOf(BitController.props(ws))
-          trackActor ! Start(trans.txs(0))
+          trackActor ! Start(trans.txs(10))
+          //trackActor ! Start(trans.txs(10))
 //          trans.txs.map{
 //            tx=> trackActor ! Start(tx)
 //          }

@@ -1,7 +1,7 @@
 package bitcoin.actors
 
 import akka.actor.{Actor, ActorLogging, Props}
-import bitcoin.actors.TrackMSG.{PreviousRecord, Record, Start}
+import bitcoin.actors.TrackMSG.{PreviousRecord, Record, Start, TrackInfo}
 import bitcoin.model.Transaction.Trans
 import play.api.libs.ws.WSClient
 
@@ -19,13 +19,13 @@ class TranTrackActor(ws: WSClient) extends Actor with ActorLogging {
   def startTraceTran(tran: Trans) = {
     val retrieveActor = context.actorOf(TranTrackActor.props(ws))
     val recordActor = context.actorOf(Props[RecordActor])
-    recordActor ! Record(tran)
+    recordActor ! Record(tran, TrackInfo(tran.txIndex.toString,0))
     tran.inputs map {
       inTrx =>
         inTrx.prevOut map {
           preOut =>
             preOut.addr match {
-              case Some(address: String) => retrieveActor ! PreviousRecord(address, preOut.txIndex, recordActor)
+              case Some(address: String) => retrieveActor ! PreviousRecord(address, preOut.txIndex, recordActor,TrackInfo(tran.txIndex.toString,1))
                 log.info(s"Send retrive work :$preOut")
             }
         }

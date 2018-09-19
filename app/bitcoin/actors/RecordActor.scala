@@ -2,14 +2,14 @@ package bitcoin.actors
 
 import akka.actor.{Actor, ActorLogging}
 import bitcoin.actors.TrackMSG.Record
-import bitcoin.model.Transaction.Trans
 
 class RecordActor  extends Actor with ActorLogging {
-  var records: Seq[Trans] = Seq()
+  var records: Seq[Record] = Seq()
   def receive = {
-    case Record(tran) =>
-      records = records :+ tran
+    case record:Record =>
+      records = records :+ record
       log.info(s"Record length: ${records.length}")
+      log.info(s"Record received: $record")
     case msg =>
       log.debug(msg.toString)
   }
