@@ -1,8 +1,8 @@
 package bitcoin.controllers
 
 import akka.actor.{ActorSystem, Props}
-import bitcoin.actors.TrackMSG.Start
-import bitcoin.actors.TranTrackActor
+import bitcoin.actors.address.MSG.Start
+import bitcoin.actors.address.TranTrackActor
 import bitcoin.model.AddressTrans.AddressTransResult
 import bitcoin.services.WsService
 import cakesolutions.kafka.{KafkaProducerRecord, KafkaTopicPartition}
@@ -11,6 +11,7 @@ import javax.inject.Inject
 import play.api.Logger
 import play.api.libs.ws.WSClient
 import play.api.mvc.{AbstractController, ControllerComponents}
+
 import scala.concurrent.ExecutionContext.Implicits.global
 
 object BitController{

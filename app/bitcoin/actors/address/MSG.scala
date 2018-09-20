@@ -1,9 +1,9 @@
-package bitcoin.actors
+package bitcoin.actors.address
 
 import akka.actor.ActorRef
-import bitcoin.model.Transaction.Trans
+import bitcoin.model.thick.Transaction.Trans
 
-object TrackMSG {
+object MSG {
 
   case class Start(start: Trans)
 

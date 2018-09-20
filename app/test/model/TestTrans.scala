@@ -1,7 +1,7 @@
 package test.model
 
-import bitcoin.model.Transaction.Trans
-import bitcoin.model.Transaction._
+import bitcoin.model.thick.Transaction.Trans
+import bitcoin.model.thick.Transaction._
 import spray.json._
 
 import scala.io.Source

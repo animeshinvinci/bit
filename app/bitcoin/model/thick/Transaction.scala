@@ -1,4 +1,6 @@
-package bitcoin.model
+package bitcoin.model.thick
+
+import bitcoin.model.SnakifiedSprayJsonSupport
 
 /**
   * For bitcoin.model in play-scala-rest-api-example

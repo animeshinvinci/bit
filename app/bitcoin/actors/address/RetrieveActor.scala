@@ -1,9 +1,10 @@
-package bitcoin.actors
+package bitcoin.actors.address
 
 import akka.actor.{Actor, ActorLogging, ActorRef}
-import bitcoin.actors.TrackMSG.{PreviousRecord, Record, TrackInfo}
+import MSG.{PreviousRecord, Record, TrackInfo}
 import bitcoin.model.AddressTrans.AddressTransResult
 import bitcoin.services.WsService
+
 import scala.concurrent.ExecutionContext.Implicits.global
 
 class RetrieveActor(wss: WsService) extends Actor with ActorLogging {
@@ -27,6 +28,7 @@ class RetrieveActor(wss: WsService) extends Actor with ActorLogging {
                   }
               }
           }
+          case _=>
         }
     }
   }

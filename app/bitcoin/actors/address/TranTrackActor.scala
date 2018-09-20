@@ -1,8 +1,8 @@
-package bitcoin.actors
+package bitcoin.actors.address
 
 import akka.actor.{Actor, ActorLogging, Props}
-import bitcoin.actors.TrackMSG.{PreviousRecord, Record, Start, TrackInfo}
-import bitcoin.model.Transaction.Trans
+import bitcoin.actors.address.MSG.{PreviousRecord, Record, Start, TrackInfo}
+import bitcoin.model.thick.Transaction.Trans
 import bitcoin.services.WsService
 
 /**
@@ -27,6 +27,7 @@ class TranTrackActor(wss:WsService) extends Actor with ActorLogging {
             preOut.addr match {
               case Some(address: String) => retrieveActor ! PreviousRecord(address, preOut.txIndex, recordActor,TrackInfo(tran.txIndex.toString,1))
                 log.info(s"Send retrive work :$preOut")
+              case _=>
             }
         }
     }

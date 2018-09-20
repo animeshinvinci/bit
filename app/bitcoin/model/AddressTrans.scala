@@ -6,7 +6,7 @@ package bitcoin.model
   */
 object AddressTrans extends SnakifiedSprayJsonSupport {
 
-  import Transaction._
+  import bitcoin.model.thick.Transaction._
 
   case class AddressTransResult(hash160: String, address: String, nTX: Int, totalReceived: Long,
                                 totalSent: Long, finalBalance: Long, txs: Seq[Trans])

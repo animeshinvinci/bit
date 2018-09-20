@@ -1,10 +1,10 @@
 package controllers
 
 import bitcoin.model.AddressTrans.AddressTransResult
-import bitcoin.model.BlockTrans.BlockTransResult
+import bitcoin.model.thick.BlockTrans.BlockTransResult
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneAppPerTest
-import bitcoin.model.Transaction._
+import bitcoin.model.thick.Transaction._
 import spray.json._
 
 import scala.io.Source

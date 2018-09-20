@@ -1,7 +1,7 @@
-package bitcoin.actors
+package bitcoin.actors.address
 
 import akka.actor.{Actor, ActorLogging}
-import bitcoin.actors.TrackMSG.Record
+import MSG.Record
 
 class RecordActor  extends Actor with ActorLogging {
   var records: Seq[Record] = Seq()
