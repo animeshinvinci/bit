@@ -1,6 +1,7 @@
 package bitcoin.model.slim
 
 import bitcoin.model.SnakifiedSprayJsonSupport
+import bitcoin.model.slim.Transaction.Trans
 
 
 /**
@@ -9,7 +10,6 @@ import bitcoin.model.SnakifiedSprayJsonSupport
   */
 object BlockTrans extends SnakifiedSprayJsonSupport {
 
-  import bitcoin.model.thick.Transaction._
 
   case class BlockTransResult(prevBlock: String, time: Long,   height: Int,  tx: Seq[Trans])
 

@@ -1,13 +1,11 @@
 package bitcoin.services
 
-
 import bitcoin.model.AddressTrans.AddressTransResult
 import bitcoin.model.slim.BlockTrans.BlockTransResult
 import javax.inject.Inject
 import play.api.Logger
 import play.api.libs.ws.WSClient
 import spray.json._
-
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
@@ -29,7 +27,7 @@ class WsService @Inject()(ws: WSClient, cache: CacheService) {
   private def tryParseAndCache[T](address: String, value: String, fun: String => T) = {
     try {
       val re = Some(fun(value))
-      cache.save(address, value)
+
       re
     } catch {
       case ex: Exception =>
@@ -41,13 +39,20 @@ class WsService @Inject()(ws: WSClient, cache: CacheService) {
 
   def getAddress(address: String) = {
     getFromEndpoint("https://blockchain.info/rawaddr/", address) map {
-      value => tryParseAndCache(address, value, value => value.parseJson.convertTo[AddressTransResult])
+      value =>
+        cache.save(address,value)
+        tryParseAndCache(address, value, value => value.parseJson.convertTo[AddressTransResult])
+
     }
   }
 
   def getSlimBlock(address: String) = {
     getFromEndpoint("https://blockchain.info/rawblock/", address) map {
-      value => tryParseAndCache(address, value, value => value.parseJson.convertTo[BlockTransResult])
+      value =>
+
+        val va =tryParseAndCache(address, value, value => value.parseJson.convertTo[BlockTransResult])
+        cache.save(address,va.get.toJson.toString())
+        va
     }
   }
 }

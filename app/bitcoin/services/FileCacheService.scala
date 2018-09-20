@@ -15,7 +15,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
   * Created by Steven T Zhou on 19/09/2018
   */
 class FileCacheService extends CacheService {
-  val cacheLocation ="./target/cache/"
+  val cacheLocation ="../cache/"
   lazy val cacheFolder = if(File(cacheLocation).exists){
     cacheLocation
   }else{

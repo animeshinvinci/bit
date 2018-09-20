@@ -3,6 +3,8 @@ package bitcoin.controllers
 import akka.actor.{ActorSystem, Props}
 import bitcoin.actors.address.MSG.Start
 import bitcoin.actors.address.TranTrackActor
+import bitcoin.actors.block.BlockTrackActor
+import bitcoin.actors.block.BlockTrackActor.StartBlockTrack
 import bitcoin.model.AddressTrans.AddressTransResult
 import bitcoin.services.WsService
 import cakesolutions.kafka.{KafkaProducerRecord, KafkaTopicPartition}
@@ -48,5 +50,13 @@ class BitController  @Inject()(cc: ControllerComponents, ws: WSClient, system:Ac
           Ok("Wrong address")
       }
     }
+
+
+  }
+
+  def getBlock(blockHash: String)= Action{
+    val blockTrackActor= system.actorOf(BlockTrackActor.props(wss))
+    blockTrackActor ! StartBlockTrack(blockHash,0)
+    Ok("Success")
   }
 }
