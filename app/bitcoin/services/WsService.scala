@@ -27,7 +27,6 @@ class WsService @Inject()(ws: WSClient, cache: CacheService) {
   private def tryParseAndCache[T](address: String, value: String, fun: String => T) = {
     try {
       val re = Some(fun(value))
-
       re
     } catch {
       case ex: Exception =>
@@ -42,7 +41,6 @@ class WsService @Inject()(ws: WSClient, cache: CacheService) {
       value =>
         cache.save(address,value)
         tryParseAndCache(address, value, value => value.parseJson.convertTo[AddressTransResult])
-
     }
   }
 

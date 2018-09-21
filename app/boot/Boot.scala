@@ -1,6 +1,7 @@
 package boot
 
 import akka.actor.{ActorSystem, Props}
+import bitcoin.actors.block.DownstreamActor
 import cakesolutions.kafka.KafkaTopicPartition
 import cakesolutions.kafka.akka.KafkaConsumerActor.Subscribe
 import cakesolutions.kafka.testkit.KafkaServer
@@ -31,6 +32,11 @@ class Boot  @Inject( ) (lifecycle: ApplicationLifecycle,system:ActorSystem)  {
   val topicPartition  =KafkaTopicPartition("bitcoin", 0)
   val subscription = Subscribe.AutoPartition(List(topicPartition.topic()))
   consumer.subscribe(subscription)
+  val topicPartitionBlock = KafkaTopicPartition("bitcoinBlock", 0)
+  val blockDownStreamTestActor = system.actorOf(Props[DownstreamActor],"blockDownStreamActor")
+  val blockConsumer = Consumer.createConsumerActor(blockDownStreamTestActor)
+  val blockSubscription = Subscribe.AutoPartition(List(topicPartitionBlock.topic()))
+  blockConsumer.subscribe(blockSubscription)
   init()
 
   lifecycle.addStopHook { () =>

@@ -4,7 +4,7 @@ import akka.actor.{ActorSystem, Props}
 import bitcoin.actors.address.MSG.Start
 import bitcoin.actors.address.TranTrackActor
 import bitcoin.actors.block.BlockTrackActor
-import bitcoin.actors.block.BlockTrackActor.StartBlockTrack
+import bitcoin.actors.block.BlockTrackActor.{ReplayBlock, StartBlockTrack}
 import bitcoin.model.AddressTrans.AddressTransResult
 import bitcoin.services.WsService
 import cakesolutions.kafka.{KafkaProducerRecord, KafkaTopicPartition}
@@ -28,6 +28,8 @@ object BitController{
 class BitController  @Inject()(cc: ControllerComponents, ws: WSClient, system:ActorSystem,wss:WsService) extends AbstractController(cc) {
 
   val producer = GigProducer.createProducer()
+  val blockTrackActor= system.actorOf(BlockTrackActor.props(wss))
+
   def get(address:String) = Action.async { implicit request =>
 
     Logger.debug("Gig producer started:")
@@ -55,8 +57,12 @@ class BitController  @Inject()(cc: ControllerComponents, ws: WSClient, system:Ac
   }
 
   def getBlock(blockHash: String)= Action{
-    val blockTrackActor= system.actorOf(BlockTrackActor.props(wss))
     blockTrackActor ! StartBlockTrack(blockHash,0)
+    Ok("Success")
+  }
+
+  def replayBlock(number:Int) =Action{
+    blockTrackActor ! ReplayBlock(number)
     Ok("Success")
   }
 }
