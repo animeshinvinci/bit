@@ -1,10 +1,11 @@
-package bitcoin.model
+package bitcoin.model.thick
+
+import bitcoin.model.SnakifiedSprayJsonSupport
 
 /**
   * For bitcoin.model in play-scala-rest-api-example
   * Created by whereby[Tao Zhou](187225577@qq.com) on 2018/9/16
   */
-
 
 object Transaction extends SnakifiedSprayJsonSupport {
 

@@ -34,7 +34,7 @@ lazy val root = (project in file("."))
   .configs(GatlingTest)
   .settings(inConfig(GatlingTest)(Defaults.testSettings): _*)
   .settings(
-    name := """gen""",
+    name := """bitsearch""",
     scalaSource in GatlingTest := baseDirectory.value / "/gatling/simulation",
     resolvers ++= appResolvers,
     libraryDependencies ++= Seq(

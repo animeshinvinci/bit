@@ -1,4 +1,6 @@
-package bitcoin.model
+package bitcoin.model.thick
+
+import bitcoin.model.SnakifiedSprayJsonSupport
 
 /**
   * For bitcoin.model in play-scala-rest-api-example
@@ -6,7 +8,7 @@ package bitcoin.model
   */
 object BlockTrans extends SnakifiedSprayJsonSupport {
 
-  import Transaction._
+  import bitcoin.model.thick.Transaction._
 
   case class BlockTransResult(hash: String, ver: Int, prevBlock: String, mrklRoot: String,
                               time: Long, bits: Long, fee: Long, nonce: Long,

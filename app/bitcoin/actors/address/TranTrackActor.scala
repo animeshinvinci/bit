@@ -1,32 +1,33 @@
-package bitcoin.actors
+package bitcoin.actors.address
 
 import akka.actor.{Actor, ActorLogging, Props}
-import bitcoin.actors.TrackMSG.{PreviousRecord, Record, Start}
-import bitcoin.model.Transaction.Trans
-import play.api.libs.ws.WSClient
+import bitcoin.actors.address.MSG.{PreviousRecord, Record, Start, TrackInfo}
+import bitcoin.model.thick.Transaction.Trans
+import bitcoin.services.WsService
 
 /**
   * For bitcoin.actors.msg in play-scala-rest-api-example
   * Created by whereby[Tao Zhou](187225577@qq.com) on 2018/9/16
   */
 object TranTrackActor {
-  def props(ws: WSClient): Props = {
-    Props(new RetrieveActor(ws))
+  def props(wss:WsService): Props = {
+    Props(new RetrieveActor(wss))
   }
 }
 
-class TranTrackActor(ws: WSClient) extends Actor with ActorLogging {
+class TranTrackActor(wss:WsService) extends Actor with ActorLogging {
   def startTraceTran(tran: Trans) = {
-    val retrieveActor = context.actorOf(TranTrackActor.props(ws))
+    val retrieveActor = context.actorOf(TranTrackActor.props(wss))
     val recordActor = context.actorOf(Props[RecordActor])
-    recordActor ! Record(tran)
+    recordActor ! Record(tran, TrackInfo(tran.txIndex.toString,0))
     tran.inputs map {
       inTrx =>
         inTrx.prevOut map {
           preOut =>
             preOut.addr match {
-              case Some(address: String) => retrieveActor ! PreviousRecord(address, preOut.txIndex, recordActor)
+              case Some(address: String) => retrieveActor ! PreviousRecord(address, preOut.txIndex, recordActor,TrackInfo(tran.txIndex.toString,1))
                 log.info(s"Send retrive work :$preOut")
+              case _=>
             }
         }
     }

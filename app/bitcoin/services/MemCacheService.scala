@@ -2,7 +2,6 @@ package bitcoin.services
 
 import javax.inject.Inject
 import play.api.cache.AsyncCacheApi
-
 import scala.concurrent.Future
 
 /**

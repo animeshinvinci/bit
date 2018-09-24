@@ -1,9 +1,10 @@
 package bitcoin.controllers
 
-
 import akka.actor.{ActorSystem, Props}
-import bitcoin.actors.TrackMSG.Start
-import bitcoin.actors.TranTrackActor
+import bitcoin.actors.address.MSG.Start
+import bitcoin.actors.address.TranTrackActor
+import bitcoin.actors.block.BlockTrackActor
+import bitcoin.actors.block.BlockTrackActor.{ReplayBlock, StartBlockTrack}
 import bitcoin.model.AddressTrans.AddressTransResult
 import bitcoin.services.WsService
 import cakesolutions.kafka.{KafkaProducerRecord, KafkaTopicPartition}
@@ -12,13 +13,12 @@ import javax.inject.Inject
 import play.api.Logger
 import play.api.libs.ws.WSClient
 import play.api.mvc.{AbstractController, ControllerComponents}
-import spray.json._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
 object BitController{
-  def props(ws:WSClient):Props={
-    Props(new TranTrackActor(ws))
+  def props(wss:WsService):Props={
+    Props(new TranTrackActor(wss))
   }
 }
 /**
@@ -28,27 +28,23 @@ object BitController{
 class BitController  @Inject()(cc: ControllerComponents, ws: WSClient, system:ActorSystem,wss:WsService) extends AbstractController(cc) {
 
   val producer = GigProducer.createProducer()
+  val blockTrackActor= system.actorOf(BlockTrackActor.props(wss))
+
   def get(address:String) = Action.async { implicit request =>
 
     Logger.debug("Gig producer started:")
     val topicPartition = KafkaTopicPartition("bitcoin", 0)
-    ws.url(s" https://blockchain.info/rawaddr/$address").get().map{
-      response=>val addressTrans= try{
-        Some(response.body.parseJson.convertTo[AddressTransResult])
-      }catch {
-        case ex:Exception =>
-          Logger.error(ex.getMessage)
-          None
-      }
-      addressTrans match {
+    wss.getAddress(address)map{
+      addressTrans=>addressTrans match {
         case Some(trans:AddressTransResult)=> trans.txs.map{
           tran=>producer.send(KafkaProducerRecord(topicPartition.topic(), None, tran.toString))
         }
-          val trackActor = system.actorOf(BitController.props(ws))
+          val trackActor = system.actorOf(BitController.props(wss))
           trackActor ! Start(trans.txs(0))
-//          trans.txs.map{
-//            tx=> trackActor ! Start(tx)
-//          }
+          //trackActor ! Start(trans.txs(10))
+          //          trans.txs.map{
+          //            tx=> trackActor ! Start(tx)
+          //          }
 
           producer.flush()
           Ok("Success")
@@ -56,5 +52,17 @@ class BitController  @Inject()(cc: ControllerComponents, ws: WSClient, system:Ac
           Ok("Wrong address")
       }
     }
+
+
+  }
+
+  def getBlock(blockHash: String)= Action{
+    blockTrackActor ! StartBlockTrack(blockHash,0)
+    Ok("Success")
+  }
+
+  def replayBlock(number:Int) =Action{
+    blockTrackActor ! ReplayBlock(number)
+    Ok("Success")
   }
 }

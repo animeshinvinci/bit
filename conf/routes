@@ -2,6 +2,9 @@ GET        /                       controllers.HomeController.index
 
 GET        /bit/*address          bitcoin.controllers.BitController.get(address:String)
 
+GET        /block/*block          bitcoin.controllers.BitController.getBlock(block:String)
+GET        /replay/*number         bitcoin.controllers.BitController.replayBlock(number:Int)
+
 ->         /v1/posts               v1.post.PostRouter
 
 # Map static resources from the /public folder to the /assets URL path
