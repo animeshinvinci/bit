@@ -3,7 +3,7 @@ package bitcoin.services
 import java.nio.charset.StandardCharsets
 import java.nio.file.{Files, Paths}
 
-import play.api.Logger
+import bitcoin.config.Const
 
 import scala.concurrent.Future
 import scala.io.Source
@@ -15,7 +15,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
   * Created by Steven T Zhou on 19/09/2018
   */
 class FileCacheService extends CacheService {
-  val cacheLocation ="../cache/"
+  lazy val cacheLocation = Const.cacheLocation
   lazy val cacheFolder = if(File(cacheLocation).exists){
     cacheLocation
   }else{

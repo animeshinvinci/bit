@@ -1,7 +1,7 @@
 package bitcoin.actors.block
 
-import akka.actor.{Actor, ActorLogging, Props}
-import bitcoin.actors.block.AccountActor.{Snap, SnapResult, TxIn, TxOut}
+import akka.actor.{Actor, ActorLogging, ActorRef, Props}
+import bitcoin.actors.block.AccountActor._
 
 /**
   * For bitcoin.actors.block in bitsearch
@@ -15,7 +15,9 @@ object AccountActor {
 
   case class TxOut(val address: String, number: Long)extends TxRecord
 
-  case class Snap(index: Int)
+  case class SnapStart(index: Int)
+
+  case class Snap(index: Int, snapActor:ActorRef)
 
   case class SnapResult(txIn: Long, txOut: Long, index: Int, address: String)
 
@@ -31,7 +33,7 @@ class AccountActor(address: String) extends Actor with ActorLogging {
   def receive = {
     case TxIn(_, number) => txIn += number
     case TxOut(_, number) => txOut += number
-    case Snap(index) => sender() ! SnapResult(txIn, txOut, index, address)
+    case Snap(index,snapActor) => snapActor ! SnapResult(txIn, txOut, index, address)
     case msg =>
       log.debug(msg.toString)
   }
