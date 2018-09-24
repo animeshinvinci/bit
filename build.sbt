@@ -40,7 +40,7 @@ lazy val root = (project in file("."))
     libraryDependencies ++= Seq(
       ws,
       ehcache,
-      "io.github.wherby"%%"gig"%"0.2.2-SNAPSHOT",
+      "io.github.wherby"%%"gig"%"0.2.3-SNAPSHOT",
       "com.typesafe.akka" %% "akka-actor" % versions.akka,
     )
   )
