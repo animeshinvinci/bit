@@ -78,7 +78,7 @@ class BlockTrackActor(wss: WsService) extends Actor with ActorLogging {
       getBlockRecord(blockTrack)
     case StartBlockTrack(blockHash, trackNum) =>
       tracedTo = trackNum
-      csvWriter = CsvWriterService.openFile("trans.csv")
+      csvWriter = CsvWriterService.openFile(s"trans$blockHash.csv")
       getBlockRecord(BlockTrack(blockHash, maxTry))
     case ReplayBlock(number) => handleReplay(number)
     case msg =>

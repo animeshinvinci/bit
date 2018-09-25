@@ -6,6 +6,8 @@ scalaVersion in ThisBuild := "2.12.6"
 
 crossScalaVersions := Seq("2.11.12", "2.12.6")
 
+//https://github.com/cakesolutions/scala-kafka-client
+resolvers += Resolver.bintrayRepo("cakesolutions", "maven")
 
 lazy val appResolvers = Seq(
   "typesafe" at "http://repo.typesafe.com/typesafe/releases/",
