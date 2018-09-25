@@ -1,7 +1,6 @@
 package test.model
 
 import bitcoin.model.AddressTrans.AddressTransResult
-import bitcoin.model.thick.Transaction.Trans
 import spray.json._
 
 import scala.io.Source

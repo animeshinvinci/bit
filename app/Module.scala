@@ -1,4 +1,4 @@
-import bitcoin.services.{CacheService, FileCacheService, MemCacheService, WsService}
+import bitcoin.services.{CacheService, FileCacheService, WsService}
 import boot.Boot
 import javax.inject._
 import com.google.inject.AbstractModule

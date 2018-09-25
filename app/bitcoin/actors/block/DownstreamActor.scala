@@ -1,7 +1,7 @@
 package bitcoin.actors.block
 
 import akka.actor.{Actor, ActorLogging, Props}
-import bitcoin.actors.block.AccountActor.{Snap, SnapStart, TxIn, TxOut}
+import bitcoin.actors.block.AccountActor.{SnapStart, TxIn, TxOut}
 import bitcoin.model.slim.BlockTrans.BlockTransResult
 import cakesolutions.kafka.akka.ConsumerRecords
 import gig.msg.ConsumerMsg.GigAckOffset
@@ -25,14 +25,14 @@ class DownstreamActor extends Actor with ActorLogging {
             input.prevOut.map {
               prevOut =>
                 prevOut.addr.map {
-                  addr => auditActor ! TxOut(prevOut.addr.get, prevOut.value)
+                  _ => auditActor ! TxOut(prevOut.addr.get, prevOut.value)
                 }
             }
         }
         tx.out.map {
           out =>
             out.addr.map {
-              addr => auditActor ! TxIn(out.addr.get, out.value)
+              _ => auditActor ! TxIn(out.addr.get, out.value)
             }
         }
     }
@@ -49,8 +49,6 @@ class DownstreamActor extends Actor with ActorLogging {
             val blockResult = ele._1.value().toString.parseJson.convertTo[BlockTransResult]
             handleBlockTrans(blockResult)
             if(blockResult.height >0 && blockResult.height %100 ==0){
-
-
               auditActor ! SnapStart(blockResult.height)
               log.info(s"Taking Snap shot in Block :${blockResult.height}")
             }

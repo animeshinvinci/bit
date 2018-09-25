@@ -2,10 +2,10 @@ package bitcoin.actors.block
 
 import akka.actor.{Actor, ActorLogging, Props}
 import bitcoin.actors.block.BlockTrackActor.{BlockTrack, ReplayBlock, StartBlockTrack}
-import bitcoin.services.WsService
+import bitcoin.services.{CsvWriterService, WsService}
 import cakesolutions.kafka.{KafkaProducerRecord, KafkaTopicPartition}
+import com.opencsv.CSVWriter
 import gig.producer.GigProducer
-
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.collection.mutable.Map
 import spray.json._
@@ -34,6 +34,8 @@ class BlockTrackActor(wss: WsService) extends Actor with ActorLogging {
   val recorder: Map[Int, String] = Map()
   val producer = GigProducer.createProducer()
   val topicPartitionBlock = KafkaTopicPartition("bitcoinBlock", 0)
+  var csvWriter: CSVWriter = _
+
 
   def getBlockRecord(blockTrack: BlockTrack) = {
     if (blockTrack.retry == 0) {
@@ -43,11 +45,13 @@ class BlockTrackActor(wss: WsService) extends Actor with ActorLogging {
       blockResult =>
         blockResult match {
           case Some(blockResult) =>
+            CsvWriterService.handleBlockToCSV(blockResult, csvWriter)
             recorder(blockResult.height) = blockResult.toJson.toString()
             if (blockResult.height > tracedTo) {
               self ! BlockTrack(blockResult.prevBlock, maxTry)
             } else {
               log.info(s"Traced to ${blockResult.height}")
+              csvWriter.close()
             }
 
           case _ =>
@@ -74,6 +78,7 @@ class BlockTrackActor(wss: WsService) extends Actor with ActorLogging {
       getBlockRecord(blockTrack)
     case StartBlockTrack(blockHash, trackNum) =>
       tracedTo = trackNum
+      csvWriter = CsvWriterService.openFile("trans.csv")
       getBlockRecord(BlockTrack(blockHash, maxTry))
     case ReplayBlock(number) => handleReplay(number)
     case msg =>

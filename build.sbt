@@ -41,6 +41,7 @@ lazy val root = (project in file("."))
       ws,
       ehcache,
       "io.github.wherby"%%"gig"%"0.2.3-SNAPSHOT",
+      "com.opencsv" % "opencsv" % "4.0",
       "com.typesafe.akka" %% "akka-actor" % versions.akka,
     )
   )
