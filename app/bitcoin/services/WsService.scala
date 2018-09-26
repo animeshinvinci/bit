@@ -47,7 +47,6 @@ class WsService @Inject()(ws: WSClient, cache: CacheService) {
   def getSlimBlock(address: String) = {
     getFromEndpoint("https://blockchain.info/rawblock/", address) map {
       value =>
-
         val va =tryParseAndCache(address, value, value => value.parseJson.convertTo[BlockTransResult])
         cache.save(address,va.get.toJson.toString())
         va

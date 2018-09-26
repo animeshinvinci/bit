@@ -1,9 +1,12 @@
 package bitcoin.services
 
 import java.io.{BufferedWriter, FileWriter}
+
 import bitcoin.config.Const
 import bitcoin.model.slim.BlockTrans.BlockTransResult
 import com.opencsv.CSVWriter
+
+import scala.collection.JavaConverters._
 import scala.reflect.io.File
 
 /**
@@ -20,7 +23,7 @@ object CsvWriterService {
   }
 
   def writeToFile(fileName: String, content: Seq[Array[String]]) = {
-    val outputFile = new BufferedWriter(new FileWriter(cacheLocation+ fileName))
+    val outputFile = new BufferedWriter(new FileWriter(cacheFolder+ fileName))
     val csvWriter = new CSVWriter(outputFile)
     content.map {
       record => csvWriter.writeNext(record)
@@ -29,7 +32,7 @@ object CsvWriterService {
   }
 
   def openFile(fileName:String):CSVWriter ={
-    val outputFile = new BufferedWriter(new FileWriter(cacheLocation+ fileName))
+    val outputFile = new BufferedWriter(new FileWriter(cacheFolder+ fileName))
     new CSVWriter(outputFile)
   }
 
@@ -40,7 +43,6 @@ object CsvWriterService {
   def closeFile(csvWriter: CSVWriter)={
     csvWriter.close()
   }
-
 
   def handleBlockToCSV(blockResult:BlockTransResult,csvWriter: CSVWriter): Unit ={
     var trxSeq = Seq[Array[String]]()

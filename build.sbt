@@ -45,6 +45,7 @@ lazy val root = (project in file("."))
       "io.github.wherby"%%"gig"%"0.2.3-SNAPSHOT",
       "com.opencsv" % "opencsv" % "4.0",
       "com.typesafe.akka" %% "akka-actor" % versions.akka,
+      "org.scalatest" %% "scalatest" % "3.0.5" % "test",
     )
   )
 
