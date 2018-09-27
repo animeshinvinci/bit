@@ -52,4 +52,8 @@ class WsService @Inject()(ws: WSClient, cache: CacheService) {
         va
     }
   }
+
+  def getSlimBlockString(address:String) ={
+    getFromEndpoint("https://blockchain.info/rawblock/", address)
+  }
 }

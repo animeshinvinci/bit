@@ -1,26 +1,16 @@
 package bitcoin.services
 
 import java.io.{BufferedWriter, FileWriter}
-
 import bitcoin.config.Const
 import bitcoin.model.slim.BlockTrans.BlockTransResult
 import com.opencsv.CSVWriter
-
-import scala.collection.JavaConverters._
-import scala.reflect.io.File
 
 /**
   * For bitcoin.services in bitsearch
   * Created by Steven T Zhou on 25/09/2018
   */
 object CsvWriterService {
-  lazy val cacheLocation = Const.cacheLocation +"snap/"
-  lazy val cacheFolder = if(File(cacheLocation).exists){
-    cacheLocation
-  }else{
-    File(cacheLocation).createDirectory()
-    cacheLocation
-  }
+  lazy val cacheFolder = Const.snapCacheLocation
 
   def writeToFile(fileName: String, content: Seq[Array[String]]) = {
     val outputFile = new BufferedWriter(new FileWriter(cacheFolder+ fileName))

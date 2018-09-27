@@ -2,10 +2,11 @@ package bitcoin.actors.block
 
 import akka.actor.{Actor, ActorLogging, Props}
 import bitcoin.actors.block.BlockTrackActor.{BlockTrack, ReplayBlock, StartBlockTrack}
-import bitcoin.services.{CsvWriterService, WsService}
+import bitcoin.services.{BlockNumberCacheService, CsvWriterService, WsService}
 import cakesolutions.kafka.{KafkaProducerRecord, KafkaTopicPartition}
 import com.opencsv.CSVWriter
 import gig.producer.GigProducer
+
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.collection.mutable.Map
 import spray.json._
@@ -36,8 +37,8 @@ class BlockTrackActor(wss: WsService) extends Actor with ActorLogging {
   val topicPartitionBlock = KafkaTopicPartition("bitcoinBlock", 0)
   var csvWriter: CSVWriter = _
 
-
   def getBlockRecord(blockTrack: BlockTrack) = {
+
     if (blockTrack.retry == 0) {
       log.info(s"Retried failed for : ${blockTrack.blockHash}")
     }
@@ -47,11 +48,13 @@ class BlockTrackActor(wss: WsService) extends Actor with ActorLogging {
           case Some(blockResult) =>
             CsvWriterService.handleBlockToCSV(blockResult, csvWriter)
             recorder(blockResult.height) = blockResult.toJson.toString()
+            BlockNumberCacheService.blockNumberMap(blockResult.height)=blockTrack.blockHash
             if (blockResult.height > tracedTo) {
               self ! BlockTrack(blockResult.prevBlock, maxTry)
             } else {
               log.info(s"Traced to ${blockResult.height}")
               csvWriter.close()
+              BlockNumberCacheService.saveMap()
             }
 
           case _ =>
@@ -64,10 +67,12 @@ class BlockTrackActor(wss: WsService) extends Actor with ActorLogging {
   def handleReplay(number: Int) = {
     (0 to number) map {
       i =>
-        recorder.get(i).map {
-          blockResult =>
-            producer.send(KafkaProducerRecord(topicPartitionBlock.topic(), None, blockResult))
-            log.info(s"Send block record to Kafka blockID:$i")
+        BlockNumberCacheService.blockNumberMap.get(i).map{
+          hashString=>wss.getSlimBlockString(hashString).map {
+            blockResult =>
+              producer.send(KafkaProducerRecord(topicPartitionBlock.topic(), None, blockResult))
+              log.info(s"Send block record to Kafka blockID:$i")
+          }
         }
     }
     producer.flush()
