@@ -32,6 +32,8 @@ class WsService @Inject()(ws: WSClient, cache: CacheService) {
       case ex: Exception =>
         Logger.error(ex.getMessage)
         Logger.error(s"Fail to get the Json Format : ${value}")
+        cache.remove(address)
+        Logger.info(s"Removed the cache :$address")
         None
     }
   }
@@ -48,7 +50,12 @@ class WsService @Inject()(ws: WSClient, cache: CacheService) {
     getFromEndpoint("https://blockchain.info/rawblock/", address) map {
       value =>
         val va =tryParseAndCache(address, value, value => value.parseJson.convertTo[BlockTransResult])
-        cache.save(address,va.get.toJson.toString())
+        cache.get(address).map{
+          result=>result match {
+            case None=>cache.save(address,va.get.toJson.toString())
+            case _=>
+          }
+        }
         va
     }
   }

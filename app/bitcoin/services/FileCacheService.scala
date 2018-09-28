@@ -30,4 +30,8 @@ class FileCacheService extends CacheService {
   override def save(key: String, item: String): Unit = {
     Files.write(Paths.get(cacheFolder + key), item.getBytes(StandardCharsets.UTF_8))
   }
+
+  override def remove(key: String): Unit = {
+    File(cacheFolder + key).delete()
+  }
 }

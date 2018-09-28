@@ -12,4 +12,6 @@ class MemCacheService@Inject()(cache: AsyncCacheApi) extends CacheService {
   override def get(key: String): Future[Option[String]] = cache.get(key)
 
   override def save(key: String, item: String): Unit = cache.set(key,item)
+
+  override def remove(key: String): Unit = cache.remove(key)
 }

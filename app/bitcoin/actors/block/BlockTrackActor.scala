@@ -36,6 +36,7 @@ class BlockTrackActor(wss: WsService) extends Actor with ActorLogging {
   val producer = GigProducer.createProducer()
   val topicPartitionBlock = KafkaTopicPartition("bitcoinBlock", 0)
   var csvWriter: CSVWriter = _
+  var csvTxWriter: CSVWriter = _
 
   def getBlockRecord(blockTrack: BlockTrack) = {
 
@@ -47,6 +48,7 @@ class BlockTrackActor(wss: WsService) extends Actor with ActorLogging {
         blockResult match {
           case Some(blockResult) =>
             CsvWriterService.handleBlockToCSV(blockResult, csvWriter)
+            CsvWriterService.handleBlockTxToCSV(blockResult ,csvTxWriter)
             recorder(blockResult.height) = blockResult.toJson.toString()
             BlockNumberCacheService.blockNumberMap(blockResult.height)=blockTrack.blockHash
             if (blockResult.height > tracedTo) {
@@ -54,6 +56,7 @@ class BlockTrackActor(wss: WsService) extends Actor with ActorLogging {
             } else {
               log.info(s"Traced to ${blockResult.height}")
               csvWriter.close()
+              csvTxWriter.close()
               BlockNumberCacheService.saveMap()
             }
 
@@ -84,6 +87,7 @@ class BlockTrackActor(wss: WsService) extends Actor with ActorLogging {
     case StartBlockTrack(blockHash, trackNum) =>
       tracedTo = trackNum
       csvWriter = CsvWriterService.openFile(s"trans$blockHash.csv")
+      csvTxWriter = CsvWriterService.openFile(s"transTX$blockHash.csv")
       getBlockRecord(BlockTrack(blockHash, maxTry))
     case ReplayBlock(number) => handleReplay(number)
     case msg =>

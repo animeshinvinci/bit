@@ -10,4 +10,6 @@ trait CacheService {
   def get(key: String): Future[Option[String]]
 
   def save(key: String, item: String): Unit
+
+  def remove(key:String)
 }
