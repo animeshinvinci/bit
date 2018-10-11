@@ -1,0 +1,13 @@
+stages:
+  - test
+
+smoke-test:
+  stage: test
+  image: sunyao5588/sbt:v0.2
+  script:
+    - echo "smoke testing..."
+    - sbt "test:testOnly *JsonModelSpec"
+  tags:
+    - DS
+    - bitsearch
+    - google-vm
