@@ -5,5 +5,6 @@
 object Dependencies {
   object versions{
     val akka = "2.5.14"
+    val phantomVersion="2.24.8"
   }
 }

@@ -1,4 +1,5 @@
-import bitcoin.services.{CacheService, FileCacheService, WsService}
+import bitcoin.db.service.BlockService
+import bitcoin.services.{CacheService, FileCacheService, DBService, WsService}
 import boot.Boot
 import javax.inject._
 import com.google.inject.AbstractModule
@@ -19,6 +20,7 @@ class Module(environment: Environment, configuration: Configuration)
     bind[Boot].asEagerSingleton()
     bind[PostRepository].to[PostRepositoryImpl].in[Singleton]
     bind[CacheService].to[FileCacheService].in[Singleton]
+    bind[BlockService].to[DBService].in[Singleton]
     bind[WsService].asEagerSingleton()
   }
 }

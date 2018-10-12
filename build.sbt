@@ -46,6 +46,7 @@ lazy val root = (project in file("."))
       "com.opencsv" % "opencsv" % "4.0",
       "com.typesafe.akka" %% "akka-actor" % versions.akka,
       "org.scalatest" %% "scalatest" % "3.0.5" % "test",
+      "com.outworkers"  %% "phantom-dsl" % versions.phantomVersion,
     )
   )
 
